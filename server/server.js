@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const models = require('./models');
 const expressGraphQL = require('express-graphql');
 const mongoose = require('mongoose');
@@ -11,11 +12,29 @@ const schema = require('./schema/schema');
 // Create a new Express application
 const app = express();
 
+// function to read eviorment variables and add them to a hash in key-value pairs
+function getEnvVars(){
+  const envFile = fs.readFileSync('./.env', 'utf8') // read contents of .env file as utf8 encoded string
+  const envVars = {} // create object to store pairs
+  const lines = envFile.split('\n') // convert text into array based on a new line so every new line will have its own index in the array
+
+  lines.forEach((line) => { // here we iterate through the array
+    const [key, value] = line.split(' = ') // split the line again and destructure the resulting array into key and value spit on the equal sign
+    envVars[key] = value.replace(/"/g, '') // now we assign a new key value pair to the object we def before and remove the "" form the string
+  })
+  return envVars // return the object after the iteration has ended
+}
+
+const secret = getEnvVars() // call the function to get back our obj containing the key value pairs form the .env file
+
 // Replace with your Mongo Atlas URI
-const MONGO_URI = '';
+const MONGO_URI = secret.CONNECT_DB // access the value by the key that will be equal to the variable name in the .env file
+console.log(MONGO_URI)
+
 if (!MONGO_URI) {
   throw new Error('You must provide a Mongo Atlas URI');
 }
+ 
 
 // Mongoose's built in promise library is deprecated, replace it with ES2015 Promise
 mongoose.Promise = global.Promise;
