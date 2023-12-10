@@ -1,11 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, hashHistory, Route, IndexRoute } from 'react-router';
-import ApolloClient from 'apollo-client';
+import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { ApolloProvider } from 'react-apollo';
+import { Router, hashHistory, Route, IndexRoute } from 'react-router';
 import App from './components/App'
+
+const networkInterface = createNetworkInterface({
+  uri: '/graphql',
+  opts: {
+    credentials: 'same-origin'
+  }
+})
+
 const client = new ApolloClient({
-  dataIdFromObjectId: o => o.id
+  networkInterface,  // read docs I had cookies before this step. I expect they changed default settings 
+  dataIdFromObjectId: o => o.id,
+
 });
 
 
@@ -14,7 +24,6 @@ const Root = () => {
     <ApolloProvider client={client}>
       <Router history={hashHistory}>
         <Route path='/' component={App}>
-
         </Route>
       </Router>
     </ApolloProvider>
